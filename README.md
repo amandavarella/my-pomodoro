@@ -26,6 +26,11 @@ Requires macOS 13 or later and Xcode 16 or later.
 
 To keep it installed, use **Product > Archive**, then **Distribute App > Copy App**, and move `Pomodoro.app` into `/Applications`. Add it under **System Settings > General > Login Items** to start it at login.
 
+## Troubleshooting
+
+- **The icon doesn't appear.** On a MacBook with a notch, menu bar items only fit to the right of the notch, and new items are hidden first when space runs out. Turn off other apps' items in **System Settings > Menu Bar**, hold ⌘ and drag the tomato next to the clock, or turn off "Show icon" or "Show seconds" in Pomodoro's settings to make it narrower. On macOS 26, also check that Pomodoro is on under **System Settings > Menu Bar > Allow in the Menu Bar**.
+- **No banners.** Turn on notifications in **System Settings > Notifications > Pomodoro**. The alert sound plays either way.
+
 ## How the speaker routing works
 
 `AlertSound` uses Core Audio to find the output device whose transport type is "built-in" (that is the "MacBook Pro Speakers" entry in the Sound menu), then plays the sound with an `AVQueuePlayer` whose `audioOutputDeviceUniqueID` is set to that device. This targets the speakers directly without changing the system output, so calls, music, and BlackHole routing are left alone.
@@ -44,3 +49,7 @@ If no built-in speakers are found, the alert falls back to the system output. Th
 | `AlertSound.swift` | Alert playback and the built-in speaker lookup. |
 | `MenuBarIcon.swift` | Template icons drawn for the menu bar. |
 | `Notifier.swift` | Silent notification banners. |
+
+## Contributing
+
+See [`CLAUDE.md`](CLAUDE.md) for architecture notes, the build command, and commit conventions.
