@@ -80,6 +80,19 @@ private struct SettingsForm: View {
             NumberRow(title: "Long break", unit: "min", value: $settings.longBreakMinutes, range: PomodoroSettings.minutesRange)
             NumberRow(title: "Long break after", unit: "pomodoros", value: $settings.pomodorosUntilLongBreak, range: PomodoroSettings.cycleRange)
 
+            Text("Menu bar")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.top, 4)
+            Toggle("Show icon", isOn: $settings.showMenuBarIcon)
+                .disabled(!settings.showMenuBarTime)
+            Toggle("Show time", isOn: $settings.showMenuBarTime)
+                .disabled(!settings.showMenuBarIcon)
+            Toggle("Show seconds", isOn: $settings.showMenuBarSeconds)
+                .disabled(!settings.showMenuBarTime)
+
+            Divider().padding(.vertical, 4)
+
             Toggle("Start the next interval automatically", isOn: $settings.autoStartNext)
             Toggle("Show a notification banner", isOn: $settings.showNotifications)
 

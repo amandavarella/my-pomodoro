@@ -9,6 +9,7 @@ A Pomodoro timer that lives in the macOS menu bar.
 - Open **Settings** in the panel to change:
   - Focus, short break, and long break lengths (1 to 180 minutes).
   - How many pomodoros before the long break (1 to 12).
+  - What the menu bar shows: the icon, the time, or both, and whether the time includes seconds (`24:59`) or only minutes (`25m`). Useful when the menu bar is crowded.
   - Whether the next interval starts automatically, and whether a notification banner appears.
   - The alert sound, its volume, and how many times it repeats.
 - **The alert always plays on the MacBook speakers**, even when the system output is set to a Multi-Output Device, BlackHole, an aggregate device, or headphones. Turn off "Always play the alert on the MacBook speakers" to follow the system output instead.
