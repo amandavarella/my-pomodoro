@@ -52,4 +52,4 @@ If no built-in speakers are found, the alert falls back to the system output. Th
 
 ## Contributing
 
-See [`CLAUDE.md`](CLAUDE.md) for architecture notes, the build command, and commit conventions.
+See [`AGENTS.md`](AGENTS.md) for architecture notes, the build command, and commit conventions. `CLAUDE.md` points to the same file.
