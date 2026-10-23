@@ -2,6 +2,8 @@
 
 Guidance for AI coding agents (Claude Code, Codex, Cursor, and others) working in this repository. This is the single source of truth; tool-specific files such as `CLAUDE.md` only point here.
 
+The shared guidance in `~/Code/AGENTS.md` also applies. Where the two disagree, this file wins.
+
 ## Project
 
 A macOS menu bar Pomodoro timer written in Swift (SwiftUI + AppKit). The goal is a Pomodoro app that beats the existing ones. There is no Dock icon (`LSUIElement`); everything lives in an `NSStatusItem` and its popover.
