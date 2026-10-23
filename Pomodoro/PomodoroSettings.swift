@@ -17,6 +17,9 @@ final class PomodoroSettings: ObservableObject {
         static let soundRepeats = "soundRepeats"
         static let autoStartNext = "autoStartNext"
         static let showNotifications = "showNotifications"
+        static let showMenuBarIcon = "showMenuBarIcon"
+        static let showMenuBarTime = "showMenuBarTime"
+        static let showMenuBarSeconds = "showMenuBarSeconds"
     }
 
     private let defaults: UserDefaults
@@ -53,6 +56,23 @@ final class PomodoroSettings: ObservableObject {
     @Published var showNotifications: Bool {
         didSet { defaults.set(showNotifications, forKey: Key.showNotifications) }
     }
+    /// Menu bar contents. At least one of icon or time stays on so the item never vanishes.
+    @Published var showMenuBarIcon: Bool {
+        didSet {
+            if !showMenuBarIcon && !showMenuBarTime { showMenuBarIcon = true }
+            defaults.set(showMenuBarIcon, forKey: Key.showMenuBarIcon)
+        }
+    }
+    @Published var showMenuBarTime: Bool {
+        didSet {
+            if !showMenuBarTime && !showMenuBarIcon { showMenuBarTime = true }
+            defaults.set(showMenuBarTime, forKey: Key.showMenuBarTime)
+        }
+    }
+    /// Show m:ss in the menu bar; when off, show whole minutes (e.g. "25m") to save space.
+    @Published var showMenuBarSeconds: Bool {
+        didSet { defaults.set(showMenuBarSeconds, forKey: Key.showMenuBarSeconds) }
+    }
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -67,6 +87,9 @@ final class PomodoroSettings: ObservableObject {
             Key.soundRepeats: 2,
             Key.autoStartNext: false,
             Key.showNotifications: true,
+            Key.showMenuBarIcon: true,
+            Key.showMenuBarTime: true,
+            Key.showMenuBarSeconds: true,
         ])
         workMinutes = defaults.integer(forKey: Key.workMinutes).clamped(to: Self.minutesRange)
         shortBreakMinutes = defaults.integer(forKey: Key.shortBreakMinutes).clamped(to: Self.minutesRange)
@@ -78,6 +101,11 @@ final class PomodoroSettings: ObservableObject {
         soundRepeats = defaults.integer(forKey: Key.soundRepeats).clamped(to: Self.repeatRange)
         autoStartNext = defaults.bool(forKey: Key.autoStartNext)
         showNotifications = defaults.bool(forKey: Key.showNotifications)
+        let showIcon = defaults.bool(forKey: Key.showMenuBarIcon)
+        let showTime = defaults.bool(forKey: Key.showMenuBarTime)
+        showMenuBarIcon = showIcon || !showTime
+        showMenuBarTime = showTime
+        showMenuBarSeconds = defaults.bool(forKey: Key.showMenuBarSeconds)
     }
 
     func minutes(for phase: Phase) -> Int {
