@@ -36,15 +36,18 @@ final class PomodoroTimer: ObservableObject {
 
     let settings: PomodoroSettings
     private let sound: AlertSound
+    /// The current time; tests swap in a controllable clock.
+    private let now: () -> Date
     private var endDate: Date?
     /// True until the current phase has been started, so settings changes can resize it.
     private var phaseUntouched = true
     private var ticker: AnyCancellable?
     private var settingsObserver: AnyCancellable?
 
-    init(settings: PomodoroSettings, sound: AlertSound) {
+    init(settings: PomodoroSettings, sound: AlertSound, now: @escaping () -> Date = Date.init) {
         self.settings = settings
         self.sound = sound
+        self.now = now
         remaining = TimeInterval(settings.workMinutes * 60)
         // objectWillChange fires before the new value lands, so hop to the next run loop pass.
         settingsObserver = settings.objectWillChange
@@ -63,7 +66,7 @@ final class PomodoroTimer: ObservableObject {
     func start() {
         guard !isRunning else { return }
         phaseUntouched = false
-        endDate = Date().addingTimeInterval(remaining)
+        endDate = now().addingTimeInterval(remaining)
         isRunning = true
         ticker = Timer.publish(every: 0.5, tolerance: 0.1, on: .main, in: .common)
             .autoconnect()
@@ -72,7 +75,7 @@ final class PomodoroTimer: ObservableObject {
 
     func pause() {
         if let endDate {
-            remaining = max(0, endDate.timeIntervalSinceNow)
+            remaining = max(0, endDate.timeIntervalSince(now()))
         }
         endDate = nil
         isRunning = false
@@ -100,9 +103,9 @@ final class PomodoroTimer: ObservableObject {
         phaseUntouched = true
     }
 
-    private func tick() {
+    func tick() {
         guard let endDate else { return }
-        let left = endDate.timeIntervalSinceNow
+        let left = endDate.timeIntervalSince(now())
         if left <= 0 {
             finish()
         } else {

@@ -25,17 +25,17 @@ final class PomodoroSettings: ObservableObject {
     private let defaults: UserDefaults
 
     @Published var workMinutes: Int {
-        didSet { workMinutes = workMinutes.clamped(to: Self.minutesRange); defaults.set(workMinutes, forKey: Key.workMinutes) }
+        didSet { store(workMinutes, in: Self.minutesRange, key: Key.workMinutes) { workMinutes = $0 } }
     }
     @Published var shortBreakMinutes: Int {
-        didSet { shortBreakMinutes = shortBreakMinutes.clamped(to: Self.minutesRange); defaults.set(shortBreakMinutes, forKey: Key.shortBreakMinutes) }
+        didSet { store(shortBreakMinutes, in: Self.minutesRange, key: Key.shortBreakMinutes) { shortBreakMinutes = $0 } }
     }
     @Published var longBreakMinutes: Int {
-        didSet { longBreakMinutes = longBreakMinutes.clamped(to: Self.minutesRange); defaults.set(longBreakMinutes, forKey: Key.longBreakMinutes) }
+        didSet { store(longBreakMinutes, in: Self.minutesRange, key: Key.longBreakMinutes) { longBreakMinutes = $0 } }
     }
     /// How many focus sessions to complete before the long break.
     @Published var pomodorosUntilLongBreak: Int {
-        didSet { pomodorosUntilLongBreak = pomodorosUntilLongBreak.clamped(to: Self.cycleRange); defaults.set(pomodorosUntilLongBreak, forKey: Key.pomodorosUntilLongBreak) }
+        didSet { store(pomodorosUntilLongBreak, in: Self.cycleRange, key: Key.pomodorosUntilLongBreak) { pomodorosUntilLongBreak = $0 } }
     }
     /// Route the alert to the built-in MacBook speakers instead of the system output device.
     @Published var forceBuiltInSpeakers: Bool {
@@ -48,7 +48,7 @@ final class PomodoroSettings: ObservableObject {
         didSet { defaults.set(soundVolume, forKey: Key.soundVolume) }
     }
     @Published var soundRepeats: Int {
-        didSet { soundRepeats = soundRepeats.clamped(to: Self.repeatRange); defaults.set(soundRepeats, forKey: Key.soundRepeats) }
+        didSet { store(soundRepeats, in: Self.repeatRange, key: Key.soundRepeats) { soundRepeats = $0 } }
     }
     @Published var autoStartNext: Bool {
         didSet { defaults.set(autoStartNext, forKey: Key.autoStartNext) }
@@ -106,6 +106,17 @@ final class PomodoroSettings: ObservableObject {
         showMenuBarIcon = showIcon || !showTime
         showMenuBarTime = showTime
         showMenuBarSeconds = defaults.bool(forKey: Key.showMenuBarSeconds)
+    }
+
+    /// Saves an in-range value, or clamps it and lets the re-entered didSet save that.
+    /// Assigning a @Published property inside its own didSet re-enters didSet (unlike a
+    /// plain stored property), so writing back unconditionally recurses until the stack overflows.
+    private func store(_ value: Int, in range: ClosedRange<Int>, key: String, clamp: (Int) -> Void) {
+        if range.contains(value) {
+            defaults.set(value, forKey: key)
+        } else {
+            clamp(value.clamped(to: range))
+        }
     }
 
     func minutes(for phase: Phase) -> Int {
