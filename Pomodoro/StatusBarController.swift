@@ -9,8 +9,10 @@ final class StatusBarController: NSObject {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let popover = NSPopover()
     private var cancellables = Set<AnyCancellable>()
+    private let settings: PomodoroSettings
 
     init(timer: PomodoroTimer, settings: PomodoroSettings, sound: AlertSound) {
+        self.settings = settings
         super.init()
 
         if let button = statusItem.button {
@@ -33,15 +35,29 @@ final class StatusBarController: NSObject {
                 self?.render(remaining: remaining, phase: phase, isRunning: isRunning)
             }
             .store(in: &cancellables)
+
+        // Redraw when the menu bar display settings change; hop a run loop pass so the new values have landed.
+        settings.objectWillChange
+            .receive(on: RunLoop.main)
+            .sink { [weak self, weak timer] _ in
+                guard let timer else { return }
+                self?.render(remaining: timer.remaining, phase: timer.phase, isRunning: timer.isRunning)
+            }
+            .store(in: &cancellables)
     }
 
     private func render(remaining: TimeInterval, phase: Phase, isRunning: Bool) {
         guard let button = statusItem.button else { return }
-        button.image = MenuBarIcon.image(for: phase)
-        button.title = " " + TimeFormat.clock(remaining)
-        // Dim the countdown while paused so a stopped timer is obvious at a glance.
+        button.image = settings.showMenuBarIcon ? MenuBarIcon.image(for: phase) : nil
+        if settings.showMenuBarTime {
+            let time = TimeFormat.menuBar(remaining, showSeconds: settings.showMenuBarSeconds)
+            button.title = settings.showMenuBarIcon ? " " + time : time
+        } else {
+            button.title = ""
+        }
+        // Dim the item while paused so a stopped timer is obvious at a glance.
         button.appearsDisabled = !isRunning
-        button.toolTip = "\(phase.title)\(isRunning ? "" : " (paused)")"
+        button.toolTip = "\(phase.title) \(TimeFormat.clock(remaining))\(isRunning ? "" : " (paused)")"
     }
 
     @objc private func togglePopover(_ sender: NSStatusBarButton) {
