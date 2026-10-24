@@ -16,6 +16,24 @@ A Pomodoro timer that lives in the macOS menu bar.
 
 Settings are saved and restored between launches.
 
+## Install
+
+1. Download the latest `Pomodoro-<version>.dmg` from the [download page](https://amandavarella.github.io/my-pomodoro/) or [Releases](https://github.com/amandavarella/my-pomodoro/releases/latest).
+2. Open the DMG and drag **Pomodoro** into **Applications**.
+3. Open Pomodoro from Applications. Look for the tomato in the menu bar; there is no Dock icon.
+
+Works on macOS 13 or later, on Apple silicon and Intel Macs.
+
+### "Pomodoro can't be opened" on first launch
+
+The app is not notarized by Apple, so macOS blocks the first launch. To allow it once:
+
+- **macOS 15 and later:** open Pomodoro, click **Done** on the warning, then go to **System Settings > Privacy & Security**, scroll down to the message about Pomodoro, and click **Open Anyway**. Confirm with your password, then click **Open**.
+- **macOS 13 and 14:** in Applications, Control-click Pomodoro, choose **Open**, then click **Open** in the dialog.
+- **Terminal alternative:** `xattr -dr com.apple.quarantine /Applications/Pomodoro.app`
+
+After that it opens normally.
+
 ## Build and run
 
 Requires macOS 13 or later and Xcode 16 or later.
@@ -24,7 +42,15 @@ Requires macOS 13 or later and Xcode 16 or later.
 2. Pick the **Pomodoro** scheme and **My Mac**, then press Run (⌘R).
 3. The app has no Dock icon. Look for the tomato in the menu bar.
 
-To keep it installed, use **Product > Archive**, then **Distribute App > Copy App**, and move `Pomodoro.app` into `/Applications`. Add it under **System Settings > General > Login Items** to start it at login.
+To start it at login, add it under **System Settings > General > Login Items**.
+
+## Making a release
+
+```sh
+./scripts/package-release.sh
+```
+
+This builds a universal (Apple silicon and Intel) Release app, ad-hoc signs it, and writes `dist/Pomodoro-<version>.dmg`. Bump `MARKETING_VERSION` in the project first, then attach the DMG to a GitHub Release tagged `v<version>`. The download page in `docs/` always points at the latest release.
 
 ## Troubleshooting
 
