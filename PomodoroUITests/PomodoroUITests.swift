@@ -36,17 +36,26 @@ final class PomodoroUITests: XCTestCase {
         (element.value as? String).flatMap { $0.isEmpty ? nil : $0 } ?? element.label
     }
 
+    /// The Settings row. SwiftUI reports the whole row (arrow, label, and the empty space to
+    /// its right) as a single disclosure triangle carrying the label's identifier.
+    private var settingsToggle: XCUIElement { app.disclosureTriangles["settingsToggle"] }
+
+    /// A point on the word "Settings": past the arrow, inside the label text.
+    private var settingsText: XCUICoordinate {
+        settingsToggle.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5)).withOffset(CGVector(dx: 60, dy: 0))
+    }
+
+    /// A point in the empty part of the row, well right of the label text.
+    private var settingsRowSpace: XCUICoordinate {
+        settingsToggle.coordinate(withNormalizedOffset: CGVector(dx: 0.8, dy: 0.5))
+    }
+
     private func openSettings() {
         let field = app.textFields["workMinutesField"]
         if field.exists { return }
-        // Only the arrow toggles a macOS DisclosureGroup, and its reported frame starts left of
-        // the arrow, so aim a little in from the left edge and nudge if the first spot misses.
-        let disclosure = app.disclosureTriangles["Settings"]
-        for dx in [0.3, 0.25, 0.35, 0.3] where !field.exists {
-            disclosure.coordinate(withNormalizedOffset: CGVector(dx: dx, dy: 0.5)).click()
-            _ = field.waitForExistence(timeout: 1.5)
-        }
-        XCTAssertTrue(field.exists, "settings did not expand")
+        XCTAssertTrue(settingsToggle.waitForExistence(timeout: 2), "Settings label missing")
+        settingsRowSpace.click()
+        XCTAssertTrue(field.waitForExistence(timeout: 3), "settings did not expand")
     }
 
     private func field(_ id: String) -> XCUIElement { app.textFields["\(id)Field"] }
@@ -145,6 +154,27 @@ final class PomodoroUITests: XCTestCase {
     func testQuitClosesTheApp() {
         app.buttons["Quit"].click()
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 5))
+    }
+
+    // MARK: Settings disclosure
+
+    func testClickingTheSettingsTextTogglesSettings() {
+        let field = app.textFields["workMinutesField"]
+        XCTAssertFalse(field.exists, "settings should start collapsed")
+        XCTAssertTrue(settingsToggle.waitForExistence(timeout: 2))
+        XCTAssertEqual(settingsToggle.label, "Settings")
+        // Click the word "Settings" itself, not the arrow.
+        settingsText.click()
+        XCTAssertTrue(field.waitForExistence(timeout: 3), "clicking the Settings text did not expand")
+        settingsText.click()
+        XCTAssertTrue(field.waitForNonExistence(timeout: 3), "clicking the Settings text did not collapse")
+    }
+
+    func testClickingTheEmptyRowAreaTogglesSettings() {
+        let field = app.textFields["workMinutesField"]
+        XCTAssertTrue(settingsToggle.waitForExistence(timeout: 2))
+        settingsRowSpace.click()
+        XCTAssertTrue(field.waitForExistence(timeout: 3), "clicking the row did not expand settings")
     }
 
     // MARK: Number settings
