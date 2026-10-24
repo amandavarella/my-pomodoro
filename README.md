@@ -24,16 +24,6 @@ Settings are saved and restored between launches.
 
 Works on macOS 13 or later, on Apple silicon and Intel Macs.
 
-### "Pomodoro can't be opened" on first launch
-
-The app is not notarized by Apple, so macOS blocks the first launch. To allow it once:
-
-- **macOS 15 and later:** open Pomodoro, click **Done** on the warning, then go to **System Settings > Privacy & Security**, scroll down to the message about Pomodoro, and click **Open Anyway**. Confirm with your password, then click **Open**.
-- **macOS 13 and 14:** in Applications, Control-click Pomodoro, choose **Open**, then click **Open** in the dialog.
-- **Terminal alternative:** `xattr -dr com.apple.quarantine /Applications/Pomodoro.app`
-
-After that it opens normally.
-
 ## Build and run
 
 Requires macOS 13 or later and Xcode 16 or later.
@@ -50,7 +40,7 @@ To start it at login, add it under **System Settings > General > Login Items**.
 ./scripts/package-release.sh
 ```
 
-This builds a universal (Apple silicon and Intel) Release app, ad-hoc signs it, and writes `dist/Pomodoro-<version>.dmg`. Bump `MARKETING_VERSION` in the project first, then attach the DMG to a GitHub Release tagged `v<version>`. The download page in `docs/` always points at the latest release.
+This archives a universal (Apple silicon and Intel) Release app, signs it with Developer ID and notarizes it through Xcode's cloud signing, then writes `dist/Pomodoro-<version>.dmg`. It needs the Apple developer account signed in under **Xcode > Settings > Accounts**; no local certificate or notarytool password is required. Notarization usually takes a few minutes. Bump `MARKETING_VERSION` in the project first, then attach the DMG to a GitHub Release tagged `v<version>`. The download page in `docs/` always points at the latest release.
 
 ## Troubleshooting
 
