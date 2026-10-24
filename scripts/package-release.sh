@@ -1,11 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 # Builds a Developer ID signed, notarized Pomodoro.app and packages it as
 # dist/Pomodoro-<version>.dmg.
 #
 # Signing and notarization go through Xcode's cloud signing with the Apple
 # account signed in under Xcode > Settings > Accounts, so no local Developer ID
 # certificate or notarytool password is needed. Set TEAM_ID to use another team.
-set -eu
+set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
