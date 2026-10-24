@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Pomodoro</title>
+<meta name="description" content="A Pomodoro timer that lives in the macOS menu bar.">
+<style>
+  :root {
+    --bg: #fbf8f5; --fg: #2b2522; --muted: #6f6560; --card: #ffffff;
+    --border: #e8e0da; --accent: #d9472b; --accent-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1c1917; --fg: #f3eeea; --muted: #a8a09a; --card: #26221f;
+      --border: #3a3430; --accent: #ef6a4f; --accent-fg: #1c1917;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  main { max-width: 680px; margin: 0 auto; padding: 56px 16px 72px; }
+  h1 { font-size: 2.4rem; margin: 0 0 4px; letter-spacing: -0.02em; }
+  .tag { color: var(--muted); font-size: 1.15rem; margin: 0 0 32px; }
+  .download {
+    display: inline-block; background: var(--accent); color: var(--accent-fg);
+    padding: 14px 26px; border-radius: 10px; font-weight: 600; text-decoration: none;
+  }
+  .meta { color: var(--muted); font-size: 0.9rem; margin: 10px 0 40px; }
+  .meta a { color: inherit; }
+  section {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px 24px; margin-bottom: 20px;
+  }
+  h2 { font-size: 1.1rem; margin: 0 0 8px; }
+  ul, ol { margin: 0; padding-left: 20px; }
+  li { margin: 4px 0; }
+  code {
+    font: 0.88em ui-monospace, Menlo, monospace; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 5px; padding: 1px 5px;
+    overflow-wrap: anywhere;
+  }
+  footer { color: var(--muted); font-size: 0.9rem; margin-top: 32px; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1>🍅 My Pomodoro</h1>
+  <p class="tag">A Pomodoro timer that lives in the macOS menu bar.</p>
+
+  <a id="download" class="download" href="https://github.com/amandavarella/my-pomodoro/releases/latest">Download for Mac</a>
+  <p class="meta"><span id="version">Latest release</span> · macOS 13 or later · Apple silicon and Intel · <a href="https://github.com/amandavarella/my-pomodoro/releases">All releases</a></p>
+
+  <section>
+    <h2>What it does</h2>
+    <ul>
+      <li>Shows the remaining time in the menu bar, with options to hide the icon, the time, or the seconds when space is tight.</li>
+      <li>Configurable focus, short break, and long break lengths, and how many pomodoros come before the long break.</li>
+      <li>The alert plays on the MacBook speakers even when your audio goes through headphones, BlackHole, or a Multi-Output Device.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Install</h2>
+    <ol>
+      <li>Open the downloaded DMG and drag <strong>Pomodoro</strong> into <strong>Applications</strong>.</li>
+      <li>Open Pomodoro and look for the tomato in the menu bar. There is no Dock icon.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>If macOS says it can't open Pomodoro</h2>
+    <p>The app is not notarized by Apple, so macOS blocks the first launch. Allow it once:</p>
+    <ul>
+      <li><strong>macOS 15 and later:</strong> open Pomodoro, click <strong>Done</strong>, then go to <strong>System Settings &gt; Privacy &amp; Security</strong>, scroll to the Pomodoro message, and click <strong>Open Anyway</strong>.</li>
+      <li><strong>macOS 13 and 14:</strong> Control-click Pomodoro in Applications, choose <strong>Open</strong>, then <strong>Open</strong> again.</li>
+      <li><strong>Or in Terminal:</strong> <code>xattr -dr com.apple.quarantine /Applications/Pomodoro.app</code></li>
+    </ul>
+  </section>
+
+  <footer>Source and issues on <a href="https://github.com/amandavarella/my-pomodoro">GitHub</a>.</footer>
+</main>
+<script>
+  // Point the button straight at the newest DMG; keep the releases link if the API call fails.
+  fetch("https://api.github.com/repos/amandavarella/my-pomodoro/releases/latest")
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(release => {
+      const dmg = release.assets.find(a => a.name.endsWith(".dmg"));
+      if (dmg) document.getElementById("download").href = dmg.browser_download_url;
+      document.getElementById("version").textContent = "Version " + release.tag_name.replace(/^v/, "");
+    })
+    .catch(() => {});
+</script>
+</body>
+</html>
