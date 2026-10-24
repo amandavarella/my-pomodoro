@@ -11,9 +11,11 @@ struct MenuView: View {
             Text(timer.phase.title)
                 .font(.headline)
                 .foregroundStyle(timer.phase.color)
+                .accessibilityIdentifier("phaseTitle")
 
             Text(TimeFormat.clock(timer.remaining))
                 .font(.system(size: 48, weight: .light, design: .rounded).monospacedDigit())
+                .accessibilityIdentifier("remainingTime")
 
             CycleDots(completed: timer.completedInCycle, total: settings.pomodorosUntilLongBreak)
 
@@ -39,6 +41,7 @@ struct MenuView: View {
                 Text("\(timer.completedTotal) done this session")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("completedTotal")
                 Spacer()
                 Button("Restart cycle") { timer.restartCycle() }
                     .controlSize(.small)
@@ -66,6 +69,7 @@ private struct CycleDots: View {
         }
         .accessibilityElement()
         .accessibilityLabel("\(completed) of \(total) pomodoros before the long break")
+        .accessibilityIdentifier("cycleDots")
     }
 }
 
@@ -75,10 +79,10 @@ private struct SettingsForm: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            NumberRow(title: "Focus", unit: "min", value: $settings.workMinutes, range: PomodoroSettings.minutesRange)
-            NumberRow(title: "Short break", unit: "min", value: $settings.shortBreakMinutes, range: PomodoroSettings.minutesRange)
-            NumberRow(title: "Long break", unit: "min", value: $settings.longBreakMinutes, range: PomodoroSettings.minutesRange)
-            NumberRow(title: "Long break after", unit: "pomodoros", value: $settings.pomodorosUntilLongBreak, range: PomodoroSettings.cycleRange)
+            NumberRow(id: "workMinutes", title: "Focus", unit: "min", value: $settings.workMinutes, range: PomodoroSettings.minutesRange)
+            NumberRow(id: "shortBreakMinutes", title: "Short break", unit: "min", value: $settings.shortBreakMinutes, range: PomodoroSettings.minutesRange)
+            NumberRow(id: "longBreakMinutes", title: "Long break", unit: "min", value: $settings.longBreakMinutes, range: PomodoroSettings.minutesRange)
+            NumberRow(id: "pomodorosUntilLongBreak", title: "Long break after", unit: "pomodoros", value: $settings.pomodorosUntilLongBreak, range: PomodoroSettings.cycleRange)
 
             Text("Menu bar")
                 .font(.caption)
@@ -102,17 +106,20 @@ private struct SettingsForm: View {
             Text(AlertSound.outputDescription(forceBuiltInSpeakers: settings.forceBuiltInSpeakers))
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .accessibilityIdentifier("outputDescription")
 
             Picker("Sound", selection: $settings.soundName) {
                 ForEach(AlertSound.availableSounds, id: \.self) { Text($0).tag($0) }
             }
+            .accessibilityIdentifier("soundPicker")
 
             HStack {
                 Text("Volume")
                 Slider(value: $settings.soundVolume, in: 0...1)
+                    .accessibilityIdentifier("volumeSlider")
             }
 
-            NumberRow(title: "Repeat", unit: "times", value: $settings.soundRepeats, range: PomodoroSettings.repeatRange)
+            NumberRow(id: "soundRepeats", title: "Repeat", unit: "times", value: $settings.soundRepeats, range: PomodoroSettings.repeatRange)
 
             Button("Test sound") { sound.play(settings: settings) }
         }
@@ -120,6 +127,8 @@ private struct SettingsForm: View {
 }
 
 private struct NumberRow: View {
+    /// Accessibility identifier prefix, so UI tests can find the field and stepper.
+    let id: String
     let title: String
     let unit: String
     @Binding var value: Int
@@ -133,10 +142,12 @@ private struct NumberRow: View {
                 .labelsHidden()
                 .multilineTextAlignment(.trailing)
                 .frame(width: 44)
+                .accessibilityIdentifier("\(id)Field")
             Text(unit)
                 .foregroundStyle(.secondary)
             Stepper(title, value: $value, in: range)
                 .labelsHidden()
+                .accessibilityIdentifier("\(id)Stepper")
         }
     }
 }

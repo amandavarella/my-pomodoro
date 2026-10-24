@@ -20,7 +20,18 @@ xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -configuration Debug -de
 open build/Build/Products/Debug/Pomodoro.app
 ```
 
-This only works on macOS. In a Linux cloud container you cannot compile; say so plainly and get the build verified on the owner's Mac (clone at `~/Code/my-pomodoro`) before claiming it works. There are no tests yet.
+This only works on macOS. In a Linux cloud container you cannot compile; say so plainly and get the build verified on the owner's Mac (clone at `~/Code/my-pomodoro`) before claiming it works.
+
+## Tests
+
+```sh
+xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build test
+```
+
+- `PomodoroTests` (unit, hosted in the app): settings clamping and persistence, the timer state machine, and `TimeFormat`. `PomodoroTimer` takes a `now` clock, so tests drive time by hand and call `tick()`.
+- `PomodoroUITests`: launches the app with `--ui-testing` (fresh, silent settings in a separate `UserDefaults` suite), clicks the menu bar item, and exercises every control in the popover and Settings. Add an `accessibilityIdentifier` for any new control and cover it here.
+- UI tests need a logged-in Mac session and Accessibility permission for the test runner, so they cannot run in a cloud container.
+- Run the whole suite and get it green before committing.
 
 ## Architecture
 
@@ -45,5 +56,6 @@ This only works on macOS. In a Linux cloud container you cannot compile; say so 
 
 - Every commit must be authored as `Amanda Varella <amandavarella@gmail.com>`. Before committing in a fresh clone, run:
   `git config user.name "Amanda Varella" && git config user.email amandavarella@gmail.com`
+- Never assign a `@Published` property unconditionally inside its own `didSet`: unlike a plain stored property, that re-enters `didSet` and recurses until the app crashes. Only write back when the value actually needs correcting.
 - Combine `@Published` publishers emit before the value changes: render from the emitted values, or hop with `.receive(on: RunLoop.main)` before reading the object.
 - Ask the owner before opening a PR or merging.
