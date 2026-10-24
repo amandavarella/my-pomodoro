@@ -30,9 +30,21 @@ struct MenuView: View {
 
             Divider()
 
-            DisclosureGroup("Settings", isExpanded: $showSettings) {
+            DisclosureGroup(isExpanded: $showSettings) {
                 SettingsForm(settings: settings, sound: sound)
                     .padding(.top, 8)
+            } label: {
+                // On macOS only the arrow toggles a DisclosureGroup, so make the label
+                // (stretched to the full row width) a plain button that toggles it too.
+                Button {
+                    withAnimation { showSettings.toggle() }
+                } label: {
+                    Text("Settings")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("settingsToggle")
             }
 
             Divider()
