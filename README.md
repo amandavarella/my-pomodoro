@@ -50,7 +50,7 @@ To start it at login, add it under **System Settings > General > Login Items**.
 ./scripts/package-release.sh
 ```
 
-This builds a universal (Apple silicon and Intel) Release app, ad-hoc signs it, and writes `dist/Pomodoro-<version>.dmg`. Bump `MARKETING_VERSION` in the project first, then attach the DMG to a GitHub Release tagged `v<version>`. The download page in `docs/` always points at the latest release.
+This archives a universal (Apple silicon and Intel) Release app, signs it with Developer ID and notarizes it through Xcode's cloud signing, then writes `dist/Pomodoro-<version>.dmg`. It needs the Apple developer account signed in under **Xcode > Settings > Accounts**; no local certificate or notarytool password is required. Notarization usually takes a few minutes. Bump `MARKETING_VERSION` in the project first, then attach the DMG to a GitHub Release tagged `v<version>`. The download page in `docs/` always points at the latest release.
 
 ## Troubleshooting
 
