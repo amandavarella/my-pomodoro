@@ -71,6 +71,15 @@
     </ol>
   </section>
 
+  <section>
+    <h2>If macOS says it can't open Pomodoro</h2>
+    <p>The app is not notarized by Apple, so macOS blocks the first launch. Allow it once:</p>
+    <ul>
+      <li><strong>macOS 15 and later:</strong> open Pomodoro, click <strong>Done</strong>, then go to <strong>System Settings &gt; Privacy &amp; Security</strong>, scroll to the Pomodoro message, and click <strong>Open Anyway</strong>.</li>
+      <li><strong>macOS 13 and 14:</strong> Control-click Pomodoro in Applications, choose <strong>Open</strong>, then <strong>Open</strong> again.</li>
+      <li><strong>Or in Terminal:</strong> <code>xattr -dr com.apple.quarantine /Applications/Pomodoro.app</code></li>
+    </ul>
+  </section>
 
   <footer>Source and issues on <a href="https://github.com/amandavarella/my-pomodoro">GitHub</a>.</footer>
 </main>
