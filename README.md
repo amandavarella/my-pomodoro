@@ -24,16 +24,6 @@ Settings are saved and restored between launches.
 
 Works on macOS 13 or later, on Apple silicon and Intel Macs.
 
-### "Pomodoro can't be opened" on first launch
-
-The app is not notarized by Apple, so macOS blocks the first launch. To allow it once:
-
-- **macOS 15 and later:** open Pomodoro, click **Done** on the warning, then go to **System Settings > Privacy & Security**, scroll down to the message about Pomodoro, and click **Open Anyway**. Confirm with your password, then click **Open**.
-- **macOS 13 and 14:** in Applications, Control-click Pomodoro, choose **Open**, then click **Open** in the dialog.
-- **Terminal alternative:** `xattr -dr com.apple.quarantine /Applications/Pomodoro.app`
-
-After that it opens normally.
-
 ## Build and run
 
 Requires macOS 13 or later and Xcode 16 or later.
