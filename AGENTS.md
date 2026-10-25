@@ -46,6 +46,16 @@ xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build t
 | `MenuBarIcon.swift` | Template (monochrome) menu bar icons. |
 | `Notifier.swift` | Silent `UserNotifications` banners. |
 
+## Releases
+
+For future releases, bump `MARKETING_VERSION` and run `./scripts/package-release.sh` with Xcode signed in. It signs, notarizes and builds the DMG on its own.
+
+- Signing uses Xcode's cloud-managed Developer ID certificate for team `4L7FK6FA5W`, so `security find-identity` will not list it and no notarytool password is needed. If the script fails with "No Accounts", the owner has to sign in again under **Xcode > Settings > Accounts**.
+- Notarization usually takes a few minutes; the first one for the team took much longer.
+- The script clears `build/release` first, including any earlier archive still waiting on notarization.
+- Publish with `gh release create v<version> dist/Pomodoro-<version>.dmg --target main`. The download page in `docs/` (GitHub Pages) picks up the latest release automatically.
+- The old v1.0 release still has its original unsigned DMG.
+
 ## Requirements to preserve
 
 - The menu bar shows the app icon and remaining time; users can hide either one (never both) and drop the seconds to save space. The owner's menu bar is crowded, so keep the item narrow.
