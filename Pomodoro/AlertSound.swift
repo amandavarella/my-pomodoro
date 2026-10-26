@@ -64,14 +64,22 @@ enum AudioDevices {
         let name: String
     }
 
+    // Output data sources reported by built-in devices ('ispk' and 'hdpn').
+    private static let internalSpeakerSource: UInt32 = 0x6973_706B
+    private static let headphonesSource: UInt32 = 0x6864_706E
+
     /// The Mac's built-in speakers ("MacBook Pro Speakers"), if present.
+    ///
+    /// Apple silicon Macs expose the headphone jack as a separate built-in device
+    /// ("External Headphones") that is often listed first, so pick the device whose
+    /// data source is the internal speaker and never the headphone one.
     static func builtInSpeakers() -> Device? {
-        for id in allDeviceIDs() where hasOutputStreams(id) && transportType(id) == kAudioDeviceTransportTypeBuiltIn {
-            guard let uid = stringProperty(id, kAudioDevicePropertyDeviceUID) else { continue }
-            let name = stringProperty(id, kAudioObjectPropertyName) ?? "built-in speakers"
-            return Device(id: id, uid: uid, name: name)
-        }
-        return nil
+        let builtIn = allDeviceIDs().filter { hasOutputStreams($0) && transportType($0) == kAudioDeviceTransportTypeBuiltIn }
+        let speakers = builtIn.first { outputDataSource($0) == internalSpeakerSource }
+            ?? builtIn.first { outputDataSource($0) != headphonesSource }
+        guard let id = speakers, let uid = stringProperty(id, kAudioDevicePropertyDeviceUID) else { return nil }
+        let name = stringProperty(id, kAudioObjectPropertyName) ?? "built-in speakers"
+        return Device(id: id, uid: uid, name: name)
     }
 
     private static func propertyAddress(_ selector: AudioObjectPropertySelector,
@@ -96,10 +104,18 @@ enum AudioDevices {
     }
 
     private static func transportType(_ id: AudioDeviceID) -> UInt32 {
-        var address = propertyAddress(kAudioDevicePropertyTransportType)
+        uint32Property(id, propertyAddress(kAudioDevicePropertyTransportType)) ?? 0
+    }
+
+    private static func outputDataSource(_ id: AudioDeviceID) -> UInt32? {
+        uint32Property(id, propertyAddress(kAudioDevicePropertyDataSource, scope: kAudioDevicePropertyScopeOutput))
+    }
+
+    private static func uint32Property(_ id: AudioDeviceID, _ address: AudioObjectPropertyAddress) -> UInt32? {
+        var address = address
         var value: UInt32 = 0
         var size = UInt32(MemoryLayout<UInt32>.size)
-        guard AudioObjectGetPropertyData(id, &address, 0, nil, &size, &value) == noErr else { return 0 }
+        guard AudioObjectGetPropertyData(id, &address, 0, nil, &size, &value) == noErr else { return nil }
         return value
     }
 
