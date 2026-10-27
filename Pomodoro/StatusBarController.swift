@@ -5,11 +5,14 @@ import SwiftUI
 /// Owns the menu bar item: the app icon, the live countdown next to it, and
 /// the popover with controls and settings.
 @MainActor
-final class StatusBarController: NSObject {
+final class StatusBarController: NSObject, NSPopoverDelegate {
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let popover = NSPopover()
     private var cancellables = Set<AnyCancellable>()
     private let settings: PomodoroSettings
+    /// When the popover last closed. A click on the icon closes the transient popover
+    /// before our action runs, so the action must not reopen it straight away.
+    private var popoverClosedAt = Date.distantPast
 
     init(timer: PomodoroTimer, settings: PomodoroSettings, sound: AlertSound) {
         self.settings = settings
@@ -21,13 +24,14 @@ final class StatusBarController: NSObject {
             button.font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
             button.target = self
             button.action = #selector(togglePopover(_:))
-            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            button.sendAction(on: [.leftMouseDown, .rightMouseDown])
         }
 
         let hosting = NSHostingController(rootView: MenuView(timer: timer, settings: settings, sound: sound))
         hosting.sizingOptions = .preferredContentSize
         popover.contentViewController = hosting
         popover.behavior = .transient
+        popover.delegate = self
 
         // @Published emits before the property changes, so render from the emitted values.
         Publishers.CombineLatest3(timer.$remaining, timer.$phase, timer.$isRunning)
@@ -63,10 +67,16 @@ final class StatusBarController: NSObject {
     @objc private func togglePopover(_ sender: NSStatusBarButton) {
         if popover.isShown {
             popover.performClose(sender)
+        } else if Date().timeIntervalSince(popoverClosedAt) < 0.3 {
+            // This same click already closed it.
         } else {
             NSApp.activate(ignoringOtherApps: true)
             popover.show(relativeTo: sender.bounds, of: sender, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
         }
+    }
+
+    func popoverWillClose(_ notification: Notification) {
+        popoverClosedAt = Date()
     }
 }
