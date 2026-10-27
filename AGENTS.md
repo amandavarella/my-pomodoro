@@ -16,8 +16,8 @@ A macOS menu bar Pomodoro timer written in Swift (SwiftUI + AppKit). The goal is
 ## Build
 
 ```sh
-xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -configuration Debug -derivedDataPath build build
-open build/Build/Products/Debug/Pomodoro.app
+xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -configuration Debug -derivedDataPath build.noindex build
+open build.noindex/Build/Products/Debug/Pomodoro.app
 ```
 
 This only works on macOS. In a Linux cloud container you cannot compile; say so plainly and get the build verified on the owner's Mac (clone at `~/Code/my-pomodoro`) before claiming it works.
@@ -26,10 +26,10 @@ This only works on macOS. In a Linux cloud container you cannot compile; say so 
 
 ```sh
 # Unit tests: run these before every commit.
-xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build test -only-testing:PomodoroTests
+xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build.noindex test -only-testing:PomodoroTests
 
 # Full suite, UI tests included: only when the owner asks.
-xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build test
+xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build.noindex test
 ```
 
 - `PomodoroTests` (unit, hosted in the app): settings clamping and persistence, the timer state machine, and `TimeFormat`. `PomodoroTimer` takes a `now` clock, so tests drive time by hand and call `tick()`.
@@ -57,9 +57,18 @@ For future releases, bump `MARKETING_VERSION` and run `./scripts/package-release
 
 - Signing uses Xcode's cloud-managed Developer ID certificate for team `4L7FK6FA5W`, so `security find-identity` will not list it and no notarytool password is needed. If the script fails with "No Accounts", the owner has to sign in again under **Xcode > Settings > Accounts**.
 - Notarization usually takes a few minutes; the first one for the team took much longer.
-- The script clears `build/release` first, including any earlier archive still waiting on notarization.
+- The script clears `build.noindex/release` first, including any earlier archive still waiting on notarization.
 - Publish with `gh release create v<version> dist/Pomodoro-<version>.dmg --target main`. The download page in `docs/` (GitHub Pages) picks up the latest release automatically.
 - The old v1.0 release still has its original unsigned DMG.
+
+## Keep stray app copies cleaned up
+
+Every build leaves a `Pomodoro.app` behind, and macOS lists each one in Spotlight and Launchpad next to the real app. The owner should only ever see `/Applications/Pomodoro.app`.
+
+- Always build into `build.noindex` (the commands above already do). Spotlight skips folders ending in `.noindex`; a plain `build/` folder gets indexed.
+- When a task is finished (merged, shipped, or abandoned), quit any debug copy you launched and delete the build output it left: `build.noindex` in the main checkout and in every worktree you used, `~/Library/Developer/Xcode/DerivedData/Pomodoro-*`, and any `Pomodoro.xcarchive` or exported app in scratch or temp folders. Keep `dist/`, which holds the release DMGs.
+- Then confirm only the installed copy is left:
+  `find / -name Pomodoro.app -type d -not -path '*/Pomodoro.app/*' 2>/dev/null | grep -v '^/System'`
 
 ## Requirements to preserve
 

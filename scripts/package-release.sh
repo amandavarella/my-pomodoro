@@ -10,7 +10,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 TEAM_ID=${TEAM_ID:-4L7FK6FA5W}
-OUT=build/release
+OUT=build.noindex/release
 ARCHIVE=$OUT/Pomodoro.xcarchive
 rm -rf "$OUT" && mkdir -p "$OUT" dist
 
