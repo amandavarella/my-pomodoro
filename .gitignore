@@ -2,5 +2,6 @@
 xcuserdata/
 DerivedData/
 build/
+build.noindex/
 *.xcuserstate
 dist/
