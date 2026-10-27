@@ -151,6 +151,13 @@ final class PomodoroUITests: XCTestCase {
         XCTAssertTrue(title.contains("25:00"), "menu bar shows '\(title)'")
     }
 
+    func testClickingTheMenuBarItemAgainClosesThePanel() {
+        statusItem.click()
+        XCTAssertTrue(remainingTime.waitForNonExistence(timeout: 3), "panel stayed open")
+        statusItem.click()
+        XCTAssertTrue(remainingTime.waitForExistence(timeout: 3), "panel did not reopen")
+    }
+
     func testQuitClosesTheApp() {
         app.buttons["Quit"].click()
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 5))
