@@ -25,13 +25,18 @@ This only works on macOS. In a Linux cloud container you cannot compile; say so 
 ## Tests
 
 ```sh
+# Unit tests: run these before every commit.
+xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build test -only-testing:PomodoroTests
+
+# Full suite, UI tests included: only when the owner asks.
 xcodebuild -project Pomodoro.xcodeproj -scheme Pomodoro -derivedDataPath build test
 ```
 
 - `PomodoroTests` (unit, hosted in the app): settings clamping and persistence, the timer state machine, and `TimeFormat`. `PomodoroTimer` takes a `now` clock, so tests drive time by hand and call `tick()`.
 - `PomodoroUITests`: launches the app with `--ui-testing` (fresh, silent settings in a separate `UserDefaults` suite), clicks the menu bar item, and exercises every control in the popover and Settings. Add an `accessibilityIdentifier` for any new control and cover it here.
 - UI tests need a logged-in Mac session and Accessibility permission for the test runner, so they cannot run in a cloud container.
-- Run the whole suite and get it green before committing.
+- Never run the full UI test suite unless the owner asks for it: it takes minutes, drives the owner's mouse, and quits whatever copy of the app they are using. Running only the UI test you added or changed is fine.
+- Get the unit tests green before committing.
 
 ## Architecture
 
